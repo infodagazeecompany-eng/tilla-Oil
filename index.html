@@ -101,7 +101,7 @@ details{background:#fff;border:1px solid #e7ddc8;border-radius:10px;padding:15px
 <textarea id="address" required rows="3" placeholder="House number, street, area"></textarea>
 
 <label>Nearby Landmark</label>
-<input id="landmark" placeholder="Near famous place / landmark">
+<input id="landmark" required placeholder="Near famous place / landmark">
 
 <label>City *</label>
 <input id="city" required placeholder="Enter your city">
@@ -141,9 +141,8 @@ details{background:#fff;border:1px solid #e7ddc8;border-radius:10px;padding:15px
     <p class="thankyou-sub">We have received your order. Our team will contact you soon to confirm your order details.</p>
 
     <div class="steps">
-      <div><span>📞</span><b>1. Confirmation Call</b><small>Our team will contact you shortly.</small></div>
-      <div><span>📦</span><b>2. Processing</b><small>Your order will be prepared for dispatch.</small></div>
-      <div><span>🚚</span><b>3. Delivery</b><small>Receive your order with Cash on Delivery.</small></div>
+      <div><span>📦</span><b>1. Processing</b><small>Your order will be prepared for dispatch.</small></div>
+      <div><span>🚚</span><b>2. Delivery</b><small>Receive your order with Cash on Delivery.</small></div>
     </div>
 
     <div class="thankyou-details">
@@ -176,7 +175,7 @@ document.querySelectorAll('input[name="deal"]').forEach(function(r){
 r.addEventListener('change',updateCheckout);
 });
 function closeThankYou(){document.getElementById('thankyouPage').style.display='none';window.scrollTo({top:document.getElementById('order').offsetTop-20,behavior:'smooth'});}
-document.getElementById('orderForm').addEventListener('submit', async function(e){
+document.getElementById('orderForm').addEventListener('submit', function(e){
 e.preventDefault();
 
 const selected=document.querySelector('input[name="deal"]:checked');
@@ -198,28 +197,27 @@ const btn=this.querySelector('.orderbtn');
 btn.disabled=true;
 btn.textContent='PROCESSING YOUR ORDER...';
 
+// Send the order to Google Sheets without waiting for the response.
+// The 1-second processing screen must not get stuck waiting for Apps Script.
 try{
-  await fetch(GOOGLE_SHEET_URL,{
+  fetch(GOOGLE_SHEET_URL,{
     method:'POST',
     mode:'no-cors',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(orderData)
-  });
+    body:JSON.stringify(orderData),
+    keepalive:true
+  }).catch(function(){});
+}catch(err){}
 
-  document.getElementById('thankDeal').textContent=selected.value;
-  document.getElementById('thankTotal').textContent='Rs. '+total;
+document.getElementById('thankDeal').textContent=selected.value;
+document.getElementById('thankTotal').textContent='Rs. '+total;
 
-  setTimeout(function(){
-    document.getElementById('thankyouPage').style.display='flex';
-    btn.disabled=false;
-    btn.textContent='PLACE ORDER — Rs. '+total;
-  },1000);
-
-}catch(error){
+// Exactly 1 second processing screen, then Thank You page.
+setTimeout(function(){
+  document.getElementById('thankyouPage').style.display='flex';
   btn.disabled=false;
   btn.textContent='PLACE ORDER — Rs. '+total;
-  alert('Order submit nahi ho saka. Please try again.');
-}
+},1000);
 });
 </script>
 
