@@ -63,6 +63,23 @@ details{background:#fff;border:1px solid #e7ddc8;border-radius:10px;padding:15px
 .back-btn{border:0;background:#1768d1;color:#fff;padding:11px 22px;border-radius:8px;font-weight:800;cursor:pointer}
 @media(max-width:600px){.steps{grid-template-columns:1fr}.thankyou-card{padding:22px 15px}.thankyou-card h2{font-size:28px}}
 </style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1246951175179531');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 <div class="top">🚚 Cash on Delivery Across Pakistan &nbsp; | &nbsp; ✓ Check Your Parcel Before Payment &nbsp; | &nbsp; 🌿 Original Herbal Product</div>
@@ -174,7 +191,27 @@ selected.closest('.deal-card').classList.add('active');
 document.querySelectorAll('input[name="deal"]').forEach(function(r){
 r.addEventListener('change',updateCheckout);
 });
-function closeThankYou(){document.getElementById('thankyouPage').style.display='none';window.scrollTo({top:document.getElementById('order').offsetTop-20,behavior:'smooth'});}
+function closeThankYou(){
+  document.getElementById('thankyouPage').style.display='none';
+
+  const form = document.getElementById('orderForm');
+  if (form) form.reset();
+
+  // Reset selected deal UI and totals for a fresh order.
+  const firstDeal = document.querySelector('input[name="deal"]');
+  if (firstDeal) {
+    firstDeal.checked = true;
+    if (typeof updateCheckout === 'function') updateCheckout();
+  }
+
+  // Allow the next genuine order in this browser session to send a new Purchase.
+  sessionStorage.removeItem('meta_purchase_tracked');
+
+  window.scrollTo({
+    top: document.getElementById('order').offsetTop - 20,
+    behavior:'smooth'
+  });
+}
 document.getElementById('orderForm').addEventListener('submit', function(e){
 e.preventDefault();
 
@@ -215,6 +252,7 @@ document.getElementById('thankTotal').textContent='Rs. '+total;
 // Exactly 1 second processing screen, then Thank You page.
 setTimeout(function(){
   document.getElementById('thankyouPage').style.display='flex';
+  trackThankYouPurchase(total);
   btn.disabled=false;
   btn.textContent='PLACE ORDER — Rs. '+total;
 },1000);
@@ -224,4 +262,23 @@ setTimeout(function(){
 <script>
 const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyGV0GEEm_JIK_yNf6Z6alqMjqR5JYNHYwK9hNeMBVmw5IJHoJB21utQjccNozCNcFa/exec";
 </script>
+
+<script>
+function trackThankYouPurchase(totalAmount) {
+  // Purchase fires only when the Thank You page is shown.
+  // Prevent duplicate Purchase events if the page is revisited in the same session.
+  if (sessionStorage.getItem('meta_purchase_tracked') === '1') {
+    return;
+  }
+
+  if (typeof fbq === 'function') {
+    fbq('track', 'Purchase', {
+      value: Number(totalAmount),
+      currency: 'PKR'
+    });
+    sessionStorage.setItem('meta_purchase_tracked', '1');
+  }
+}
+</script>
+
 </body></html>
