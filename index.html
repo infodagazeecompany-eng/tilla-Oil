@@ -176,21 +176,54 @@ document.querySelectorAll('input[name="deal"]').forEach(function(r){
 r.addEventListener('change',updateCheckout);
 });
 function closeThankYou(){document.getElementById('thankyouPage').style.display='none';window.scrollTo({top:document.getElementById('order').offsetTop-20,behavior:'smooth'});}
-document.getElementById('orderForm').addEventListener('submit',function(e){
+document.getElementById('orderForm').addEventListener('submit', async function(e){
 e.preventDefault();
+
 const selected=document.querySelector('input[name="deal"]:checked');
 const is10=selected.value.includes('1,799');
 const total=is10?'1,999':'2,699';
-document.getElementById('thankDeal').textContent=selected.value;
-document.getElementById('thankTotal').textContent='Rs. '+total;
+
+const orderData={
+  deal:selected.value,
+  name:document.getElementById('name').value.trim(),
+  phone:document.getElementById('phone').value.trim(),
+  address:document.getElementById('address').value.trim(),
+  landmark:document.getElementById('landmark').value.trim(),
+  city:document.getElementById('city').value.trim(),
+  shipping:'200',
+  total:total
+};
+
 const btn=this.querySelector('.orderbtn');
 btn.disabled=true;
 btn.textContent='PROCESSING YOUR ORDER...';
-setTimeout(function(){
-document.getElementById('thankyouPage').style.display='flex';
-btn.disabled=false;
-btn.textContent='PLACE ORDER — Rs. '+total;
-},1000);
+
+try{
+  await fetch(GOOGLE_SHEET_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(orderData)
+  });
+
+  document.getElementById('thankDeal').textContent=selected.value;
+  document.getElementById('thankTotal').textContent='Rs. '+total;
+
+  setTimeout(function(){
+    document.getElementById('thankyouPage').style.display='flex';
+    btn.disabled=false;
+    btn.textContent='PLACE ORDER — Rs. '+total;
+  },1000);
+
+}catch(error){
+  btn.disabled=false;
+  btn.textContent='PLACE ORDER — Rs. '+total;
+  alert('Order submit nahi ho saka. Please try again.');
+}
 });
+</script>
+
+<script>
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyGV0GEEm_JIK_yNf6Z6alqMjqR5JYNHYwK9hNeMBVmw5IJHoJB21utQjccNozCNcFa/exec";
 </script>
 </body></html>
