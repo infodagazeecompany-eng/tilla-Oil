@@ -61,8 +61,7 @@ details{background:#fff;border:1px solid #e7ddc8;border-radius:10px;padding:15px
 .thankyou-details>div:last-child{border-bottom:0}.thankyou-details strong{text-align:right;color:#20354b}
 .thankyou-details .detail-total{font-size:13px;color:#17324d}.thankyou-details .detail-total strong{font-size:15px;color:#1768d1}
 .back-btn{border:0;background:#1768d1;color:#fff;padding:11px 22px;border-radius:8px;font-weight:800;cursor:pointer}
-@media(max-width:600px){.steps{grid-template-columns:1fr}.thankyou-card{padding:22px 15px}.thankyou-card h2{font-size:28px}}
-</style>
+@media(max-width:600px){</style>
 <!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -80,6 +79,20 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
+
+<style id="recent-order-clean">
+.recent-order{position:fixed;top:78px;right:16px;z-index:999999;width:min(330px,calc(100vw - 28px));background:linear-gradient(135deg,#063b25,#0b5b36);border:1px solid #d8b45b;border-radius:12px;padding:11px 14px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);font:600 13px/1.35 Arial,sans-serif;display:flex;align-items:center;gap:10px;opacity:1;transform:translateY(0);transition:opacity .28s ease,transform .28s ease;pointer-events:none}
+.recent-order.recent-hide{opacity:0;transform:translateY(-10px)}
+.recent-order:before{content:'✓';flex:0 0 30px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#f5c95d;color:#063b25;font-weight:900;font-size:16px}
+.recent-content{min-width:0}.recent-text{font-size:12px;font-weight:700;white-space:normal}
+@media(max-width:600px){.recent-order{top:12px;right:8px;width:calc(100vw - 16px);padding:9px 10px;font-size:11px}.recent-order:before{flex-basis:28px;width:28px;height:28px;font-size:15px}.recent-text{font-size:11px}}
+
+/* Order details notice box */
+.order-details-box{background:#07552f;border:1px solid #d8b45b;border-radius:8px;padding:10px 14px;margin:10px 0 14px;color:#fff;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,.10)}
+.order-details-title{font-size:16px;font-weight:900;line-height:1.2;margin-bottom:5px;color:#fff}
+.order-details-box>div:last-child{font-size:11px;line-height:1.35;color:#fff}
+@media(max-width:600px){.order-details-box{padding:9px 10px;margin:8px 0 12px}.order-details-title{font-size:15px}.order-details-box>div:last-child{font-size:10.5px}}
+</style>
 </head>
 <body>
 <div class="top">🚚 Cash on Delivery Across Pakistan &nbsp; | &nbsp; ✓ Check Your Parcel Before Payment &nbsp; | &nbsp; 🌿 Original Herbal Product</div>
@@ -91,7 +104,13 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
 </div></div>
 <div class="info"><span class="badge">100% PURE HERBAL PRODUCT</span><h1>100% Pure Tilla Patal Jantar Massage Oil</h1><a class="review-btn" href="#reviews">★★★★★ &nbsp; Customer Reviews</a>
 <div class="price"><span class="old">Rs. 2,299</span><span class="new">Rs. 1,799</span></div>
-<div class="form" id="order"><h2>📝 Order Details</h2><div class="sub">Barah-e-karam apna mukammal address likhein. Adhoore address par order dispatch nahi kiya jayega.</div>
+
+<div class="viewer-counter" id="viewerCounter">👁️ <strong>89</strong> people are viewing this product right now</div>
+<div class="order-details-box">
+  <div class="order-details-title">📝 Order Details</div>
+  <div>Barah-e-karam apna <strong>mukammal address</strong> likhein. Adhoore address par order dispatch nahi kiya jayega.</div>
+</div>
+
 <form id="orderForm">
 <label>Choose Your Deal *</label>
 <div class="deal-grid">
@@ -106,6 +125,8 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
     <span class="deal-price">Rs. 2,499</span>
   </label>
 </div>
+
+
 <div class="delivery-note">🚚 Delivery Charges: <strong>Rs. 200</strong></div>
 
 <label>Full Name *</label>
@@ -191,27 +212,7 @@ selected.closest('.deal-card').classList.add('active');
 document.querySelectorAll('input[name="deal"]').forEach(function(r){
 r.addEventListener('change',updateCheckout);
 });
-function closeThankYou(){
-  document.getElementById('thankyouPage').style.display='none';
-
-  const form = document.getElementById('orderForm');
-  if (form) form.reset();
-
-  // Reset selected deal UI and totals for a fresh order.
-  const firstDeal = document.querySelector('input[name="deal"]');
-  if (firstDeal) {
-    firstDeal.checked = true;
-    if (typeof updateCheckout === 'function') updateCheckout();
-  }
-
-  // Allow the next genuine order in this browser session to send a new Purchase.
-  sessionStorage.removeItem('meta_purchase_tracked');
-
-  window.scrollTo({
-    top: document.getElementById('order').offsetTop - 20,
-    behavior:'smooth'
-  });
-}
+function closeThankYou(){document.getElementById('thankyouPage').style.display='none';window.scrollTo({top:document.getElementById('order').offsetTop-20,behavior:'smooth'});}
 document.getElementById('orderForm').addEventListener('submit', function(e){
 e.preventDefault();
 
@@ -281,4 +282,76 @@ function trackThankYouPurchase(totalAmount) {
 }
 </script>
 
+
+<script>
+(function(){
+  const el=document.getElementById('viewerCounter');
+  if(!el) return;
+  const sequence=[89,72,56,69,93];
+  let i=0;
+  function update(){
+    const count = i < sequence.length ? sequence[i] : Math.floor(Math.random()*50)+50;
+    el.innerHTML='👁️ <strong>'+count+'</strong> people are viewing this product right now';
+    i++;
+    setTimeout(update, 2500);
+  }
+  update();
+})();
+</script>
+
+<div class="recent-order" id="recentOrder" aria-live="polite">
+  <div class="recent-content">
+    <div class="recent-title">Recent Order</div>
+    <div class="recent-text"><span id="recentName">Usman</span> from <span id="recentCity">Lahore</span> just ordered <strong>Herbal Massage Oil</strong></div>
+  </div>
+</div>
+
+
+
+
+<script id="recent-order-final-script">
+(function(){
+  const orders=[
+    ['Usman','Lahore'],['Hamza','Karachi'],['Bilal','Islamabad'],['Ali','Lahore'],
+    ['Ahmed','Rawalpindi'],['Hassan','Faisalabad'],['Saad','Multan'],['Danish','Peshawar'],
+    ['Huzaifa','Gujranwala'],['Fahad','Sialkot'],['Abdullah','Bahawalpur'],['Adeel','Hyderabad'],
+    ['Owais','Sukkur'],['Talha','Quetta'],['Shahzaib','Abbottabad'],['Zubair','Mardan'],
+    ['Waqas','Lahore'],['Rayan','Karachi'],['Salman','Islamabad'],['Arslan','Rawalpindi']
+  ];
+  const box=document.getElementById('recentOrder');
+  const name=document.getElementById('recentName');
+  const city=document.getElementById('recentCity');
+  if(!box||!name||!city)return;
+
+  let remaining=orders.slice();
+  let lastIndex=-1;
+  function nextOrder(){
+    if(!remaining.length) remaining=orders.slice();
+    let idx=Math.floor(Math.random()*remaining.length);
+    const item=remaining.splice(idx,1)[0];
+    if(item[0]===orders[lastIndex]?.[0] && remaining.length){ return nextOrder(); }
+    lastIndex=orders.findIndex(x=>x[0]===item[0]&&x[1]===item[1]);
+    return item;
+  }
+  function showNext(){
+    const item=nextOrder();
+    name.textContent=item[0];
+    city.textContent=item[1];
+    box.style.display='flex';
+    box.classList.remove('recent-hide');
+    // Visible for 3 seconds
+    setTimeout(function(){
+      box.classList.add('recent-hide');
+      // Hidden for 1.5 seconds, then show the next one
+      setTimeout(function(){
+        box.style.display='none';
+        showNext();
+      },1500);
+    },3000);
+  }
+  box.classList.add('recent-hide');
+  box.style.display='none';
+  setTimeout(showNext,300);
+})();
+</script>
 </body></html>
