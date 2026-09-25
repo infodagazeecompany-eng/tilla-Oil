@@ -177,30 +177,37 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
 </style>
 
 
-<style id="MOBILE-RIGHT-NOTIFICATION-FINAL">
-/* FORCE recent-order notification to TOP-RIGHT on every screen */
-.recent-order {
-  position: fixed !important;
-  top: 12px !important;
-  right: 10px !important;
-  left: auto !important;
-  bottom: auto !important;
-  margin: 0 !important;
-  transform: none !important;
-  width: min(360px, calc(100vw - 20px)) !important;
-  max-width: calc(100vw - 20px) !important;
-  z-index: 2147483647 !important;
-  box-sizing: border-box !important;
+<style id="FINAL-RECENT-ORDER-RIGHT-CORNER">
+/* FINAL: small notification in the top-right corner on desktop and mobile */
+#recentOrder.recent-order{
+  position:fixed !important;
+  top:14px !important;
+  right:14px !important;
+  left:auto !important;
+  bottom:auto !important;
+  width:300px !important;
+  max-width:calc(100vw - 28px) !important;
+  min-height:0 !important;
+  z-index:2147483647 !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  border-radius:12px !important;
 }
-
-@media (max-width: 600px) {
-  .recent-order {
-    top: 10px !important;
-    right: 10px !important;
-    left: auto !important;
-    width: calc(100vw - 20px) !important;
-    max-width: calc(100vw - 20px) !important;
-    transform: none !important;
+#recentOrder.recent-order.recent-hide{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  transform:translateY(-8px) !important;
+}
+@media (max-width:600px){
+  #recentOrder.recent-order{
+    top:10px !important;
+    right:10px !important;
+    left:auto !important;
+    width:300px !important;
+    max-width:calc(100vw - 20px) !important;
+    padding:10px 12px !important;
+    border-radius:12px !important;
   }
 }
 </style>
@@ -433,40 +440,61 @@ function trackThankYouPurchase(totalAmount) {
     ['Owais','Sukkur'],['Talha','Quetta'],['Shahzaib','Abbottabad'],['Zubair','Mardan'],
     ['Waqas','Lahore'],['Rayan','Karachi'],['Salman','Islamabad'],['Arslan','Rawalpindi']
   ];
+
   const box=document.getElementById('recentOrder');
   const name=document.getElementById('recentName');
   const city=document.getElementById('recentCity');
-  if(!box||!name||!city)return;
+  if(!box || !name || !city) return;
+
+  // Never run on a Thank You / confirmation page.
+  const page=(location.pathname+" "+location.search+" "+document.title).toLowerCase();
+  if(/thank|success|order[-_ ]?confirmed|confirmation/.test(page)){
+    box.remove();
+    return;
+  }
 
   let remaining=orders.slice();
-  let lastIndex=-1;
-  function nextOrder(){
+  let lastName="";
+  let timer1=null, timer2=null;
+
+  function pickNext(){
     if(!remaining.length) remaining=orders.slice();
-    let idx=Math.floor(Math.random()*remaining.length);
-    const item=remaining.splice(idx,1)[0];
-    if(item[0]===orders[lastIndex]?.[0] && remaining.length){ return nextOrder(); }
-    lastIndex=orders.findIndex(x=>x[0]===item[0]&&x[1]===item[1]);
+    let choices=remaining.filter(x=>x[0]!==lastName);
+    if(!choices.length) choices=remaining.slice();
+    const item=choices[Math.floor(Math.random()*choices.length)];
+    remaining=remaining.filter(x=>x[0]!==item[0]);
+    lastName=item[0];
     return item;
   }
+
   function showNext(){
-    const item=nextOrder();
+    const item=pickNext();
     name.textContent=item[0];
     city.textContent=item[1];
+
+    // SHOW for exactly 3 seconds.
     box.style.display='flex';
     box.classList.remove('recent-hide');
-    // Visible for 3 seconds
-    setTimeout(function(){
+
+    clearTimeout(timer1);
+    clearTimeout(timer2);
+
+    timer1=setTimeout(function(){
+      // HIDE for exactly 1.5 seconds.
       box.classList.add('recent-hide');
-      // Hidden for 1.5 seconds, then show the next one
-      setTimeout(function(){
+
+      timer2=setTimeout(function(){
         box.style.display='none';
         showNext();
       },1500);
     },3000);
   }
+
   box.classList.add('recent-hide');
   box.style.display='none';
-  setTimeout(showNext,300);
+
+  // Start after a short delay.
+  setTimeout(showNext,500);
 })();
 </script>
 
@@ -485,6 +513,19 @@ function trackThankYouPurchase(totalAmount) {
     hide();
     new MutationObserver(hide).observe(document.documentElement, {childList:true, subtree:true});
   }
+})();
+</script>
+
+
+<script id="FINAL-THANKYOU-NOTIFICATION-GUARD">
+(function(){
+  const isThank=()=>/thank|success|order[-_ ]?confirmed|confirmation/i.test(
+    location.pathname+" "+location.search+" "+document.title
+  );
+  if(!isThank()) return;
+  const remove=()=>document.querySelectorAll('#recentOrder,.recent-order,.recent-order-notification,#recentOrderNotification,.recent-notification,.order-notification').forEach(e=>e.remove());
+  remove();
+  new MutationObserver(remove).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
 
