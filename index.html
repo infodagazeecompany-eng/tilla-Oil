@@ -81,17 +81,77 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
 <!-- End Meta Pixel Code -->
 
 <style id="recent-order-clean">
-.recent-order{position:fixed;top:78px;right:16px;z-index:999999;width:min(330px,calc(100vw - 28px));background:linear-gradient(135deg,#063b25,#0b5b36);border:1px solid #d8b45b;border-radius:12px;padding:11px 14px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);font:600 13px/1.35 Arial,sans-serif;display:flex;align-items:center;gap:10px;opacity:1;transform:translateY(0);transition:opacity .28s ease,transform .28s ease;pointer-events:none}
+.recent-order{position:fixed;top:78px;left:16px;right:auto;z-index:999999;width:min(330px,calc(100vw - 28px));background:linear-gradient(135deg,#063b25,#0b5b36);border:1px solid #d8b45b;border-radius:12px;padding:11px 14px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);font:600 13px/1.35 Arial,sans-serif;display:flex;align-items:center;gap:10px;opacity:1;transform:translateY(0);transition:opacity .28s ease,transform .28s ease;pointer-events:none}
 .recent-order.recent-hide{opacity:0;transform:translateY(-10px)}
 .recent-order:before{content:'✓';flex:0 0 30px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#f5c95d;color:#063b25;font-weight:900;font-size:16px}
 .recent-content{min-width:0}.recent-text{font-size:12px;font-weight:700;white-space:normal}
-@media(max-width:600px){.recent-order{top:12px;right:8px;width:calc(100vw - 16px);padding:9px 10px;font-size:11px}.recent-order:before{flex-basis:28px;width:28px;height:28px;font-size:15px}.recent-text{font-size:11px}}
+@media(max-width:600px){.recent-order{top:12px;left:8px;right:auto;width:calc(100vw - 16px);padding:9px 10px;font-size:11px}.recent-order:before{flex-basis:28px;width:28px;height:28px;font-size:15px}.recent-text{font-size:11px}}
 
 /* Order details notice box */
 .order-details-box{background:#07552f;border:1px solid #d8b45b;border-radius:8px;padding:10px 14px;margin:10px 0 14px;color:#fff;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,.10)}
 .order-details-title{font-size:16px;font-weight:900;line-height:1.2;margin-bottom:5px;color:#fff}
 .order-details-box>div:last-child{font-size:11px;line-height:1.35;color:#fff}
 @media(max-width:600px){.order-details-box{padding:9px 10px;margin:8px 0 12px}.order-details-title{font-size:15px}.order-details-box>div:last-child{font-size:10.5px}}
+</style>
+
+<style id="final-notification-position">
+/* Recent-order notification: right corner, responsive on mobile */
+.recent-order-notification,
+#recentOrderNotification,
+.recent-notification,
+.order-notification {
+  position: fixed !important;
+  top: 18px !important;
+  right: 18px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: min(360px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  z-index: 99999 !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 600px) {
+  .recent-order-notification,
+  #recentOrderNotification,
+  .recent-notification,
+  .order-notification {
+    top: 12px !important;
+    right: 10px !important;
+    left: auto !important;
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    border-radius: 14px !important;
+    padding: 12px 14px !important;
+    font-size: 13px !important;
+  }
+}
+</style>
+
+
+<style id="notification-right-final">
+.recent-order{
+  position:fixed !important;
+  top:18px !important;
+  right:18px !important;
+  left:auto !important;
+  bottom:auto !important;
+  width:min(360px,calc(100vw - 24px)) !important;
+  max-width:calc(100vw - 24px) !important;
+  z-index:999999 !important;
+  box-sizing:border-box !important;
+}
+@media(max-width:600px){
+  .recent-order{
+    top:12px !important;
+    right:10px !important;
+    left:auto !important;
+    width:calc(100vw - 20px) !important;
+    max-width:calc(100vw - 20px) !important;
+    padding:10px 12px !important;
+    border-radius:14px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -212,7 +272,7 @@ selected.closest('.deal-card').classList.add('active');
 document.querySelectorAll('input[name="deal"]').forEach(function(r){
 r.addEventListener('change',updateCheckout);
 });
-function closeThankYou(){document.getElementById('thankyouPage').style.display='none';window.scrollTo({top:document.getElementById('order').offsetTop-20,behavior:'smooth'});}
+function closeThankYou(){document.getElementById('thankyouPage').style.display='none';var r=document.getElementById('recentOrder');if(r){r.style.display='flex';r.classList.remove('recent-hide');}window.scrollTo({top:document.getElementById('order').offsetTop-20,behavior:'smooth'});}
 document.getElementById('orderForm').addEventListener('submit', function(e){
 e.preventDefault();
 
@@ -234,6 +294,9 @@ const orderData={
 const btn=this.querySelector('.orderbtn');
 btn.disabled=true;
 btn.textContent='PROCESSING YOUR ORDER...';
+// Hide the recent-order notification during processing and on the Thank You page.
+var recentOrderBox = document.getElementById('recentOrder');
+if(recentOrderBox){ recentOrderBox.style.display='none'; recentOrderBox.classList.add('recent-hide'); }
 
 // Send the order to Google Sheets without waiting for the response.
 // The 1-second processing screen must not get stuck waiting for Apps Script.
@@ -354,4 +417,23 @@ function trackThankYouPurchase(totalAmount) {
   setTimeout(showNext,300);
 })();
 </script>
+
+<script id="thankyou-notification-guard">
+(function () {
+  function isThankYouPage() {
+    const p = (location.pathname + " " + location.search + " " + document.title).toLowerCase();
+    return /thank|success|order[-_ ]?confirmed|confirmation/.test(p);
+  }
+  if (isThankYouPage()) {
+    const hide = () => {
+      document.querySelectorAll(
+        '.recent-order,.recent-order-notification,#recentOrderNotification,.recent-notification,.order-notification'
+      ).forEach(el => el.remove());
+    };
+    hide();
+    new MutationObserver(hide).observe(document.documentElement, {childList:true, subtree:true});
+  }
+})();
+</script>
+
 </body></html>
