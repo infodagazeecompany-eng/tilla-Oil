@@ -153,6 +153,58 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
   }
 }
 </style>
+
+<style id="important-notice-text-size">
+/* Slightly larger notice text */
+.order-details p,
+.order-details .notice-text,
+.order-details .order-note,
+.order-details .description,
+.important-notice-text {
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+}
+@media (max-width: 600px) {
+  .order-details p,
+  .order-details .notice-text,
+  .order-details .order-note,
+  .order-details .description,
+  .important-notice-text {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+}
+</style>
+
+
+<style id="MOBILE-RIGHT-NOTIFICATION-FINAL">
+/* FORCE recent-order notification to TOP-RIGHT on every screen */
+.recent-order {
+  position: fixed !important;
+  top: 12px !important;
+  right: 10px !important;
+  left: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+  width: min(360px, calc(100vw - 20px)) !important;
+  max-width: calc(100vw - 20px) !important;
+  z-index: 2147483647 !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 600px) {
+  .recent-order {
+    top: 10px !important;
+    right: 10px !important;
+    left: auto !important;
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    transform: none !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="top">🚚 Cash on Delivery Across Pakistan &nbsp; | &nbsp; ✓ Check Your Parcel Before Payment &nbsp; | &nbsp; 🌿 Original Herbal Product</div>
@@ -167,7 +219,7 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
 
 <div class="viewer-counter" id="viewerCounter">👁️ <strong>89</strong> people are viewing this product right now</div>
 <div class="order-details-box">
-  <div class="order-details-title">📝 Order Details</div>
+  <div class="order-details-title">📝 Important Notice</div>
   <div>Barah-e-karam apna <strong>mukammal address</strong> likhein. Adhoore address par order dispatch nahi kiya jayega.</div>
 </div>
 
@@ -244,7 +296,7 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
     </div>
 
     <div class="thankyou-details">
-      <h4>Order Details</h4>
+      <h4>Important Notice</h4>
       <div><span>Product</span><strong>100% Pure Tilla Patal Jantar Massage Oil</strong></div>
       <div><span>Deal</span><strong id="thankDeal">10 ML — Rs. 1,799</strong></div>
       <div><span>Shipping</span><strong>Rs. 200</strong></div>
