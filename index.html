@@ -338,20 +338,38 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
 function showImg(src){document.getElementById('mainImage').src=src}
 function closeModal(){document.getElementById('modal').style.display='none'}
 function updateCheckout(){
-const selected=document.querySelector('input[name="deal"]:checked');
-const is10=selected.value.includes('1,799');
-const base=is10?'1,799':'2,499';
-const total=is10?'1,999':'2,699';
-document.getElementById('summaryProduct').textContent='Rs. '+base;
-document.getElementById('orderTotal').textContent='Rs. '+total;
-document.querySelector('.orderbtn').textContent='PLACE ORDER — Rs. '+total;
-document.querySelectorAll('.deal-card').forEach(function(c){c.classList.remove('active')});
-selected.closest('.deal-card').classList.add('active');
+  const selected=document.querySelector('input[name="deal"]:checked');
+  if(!selected) return;
+
+  const is20=selected.value.includes('1,799');
+  const productPrice=is20?'1,799':'2,499';
+  const total=is20?'1,999':'2,699';
+
+  const summaryProduct=document.getElementById('summaryProduct');
+  const orderTotal=document.getElementById('orderTotal');
+  const orderButton=document.querySelector('.orderbtn');
+  const mainPrice=document.querySelector('.price .new');
+
+  if(summaryProduct) summaryProduct.textContent='Rs. '+productPrice;
+  if(orderTotal) orderTotal.textContent='Rs. '+total;
+  if(orderButton) orderButton.textContent='PLACE ORDER — Rs. '+total;
+  if(mainPrice) mainPrice.textContent='Rs. '+productPrice;
+
+  document.querySelectorAll('.deal-card').forEach(function(card){
+    card.classList.remove('active');
+  });
+  selected.closest('.deal-card').classList.add('active');
 }
-document.querySelectorAll('input[name="deal"]').forEach(function(r){
-r.addEventListener('change',updateCheckout);
+document.querySelectorAll('input[name="deal"]').forEach(function(radio){
+  radio.addEventListener('change',updateCheckout);
 });
-function closeThankYou(){document.getElementById('thankyouPage').style.display='none';var r=document.getElementById('recentOrder');if(r){r.style.display='flex';r.classList.remove('recent-hide');}window.scrollTo({top:document.getElementById('order').offsetTop-20,behavior:'smooth'});}
+updateCheckout();
+function closeThankYou(){
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.searchParams.delete('thank-you');
+  cleanUrl.searchParams.delete('order');
+  window.history.replaceState({}, '', cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+  document.getElementById('thankyouPage').style.display='none';var r=document.getElementById('recentOrder');if(r){r.style.display='flex';r.classList.remove('recent-hide');}window.scrollTo({top:document.getElementById('order').offsetTop-20,behavior:'smooth'});}
 document.getElementById('orderForm').addEventListener('submit', function(e){
 e.preventDefault();
 
@@ -397,6 +415,12 @@ document.getElementById('thankTotal').textContent='Rs. '+total;
 
 // Exactly 1 second processing screen, then Thank You page.
 setTimeout(function(){
+  // Keep the same page file, but expose a distinct Thank You URL for URL-based rules.
+  const thankYouUrl = new URL(window.location.href);
+  thankYouUrl.searchParams.set('thank-you', '1');
+  thankYouUrl.searchParams.set('order', orderTrackingId);
+  window.history.replaceState({thankYou:true, orderId:orderTrackingId}, '', thankYouUrl.pathname + thankYouUrl.search + thankYouUrl.hash);
+
   document.getElementById('thankyouPage').style.display='flex';
   trackThankYouPurchase(total, orderTrackingId);
   trackTikTokPurchase(total, orderTrackingId);
