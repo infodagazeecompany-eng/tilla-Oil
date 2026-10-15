@@ -212,6 +212,26 @@ src="https://www.facebook.com/tr?id=1246951175179531&ev=PageView&noscript=1"
 }
 </style>
 
+
+<!-- TikTok Pixel Code: replace DB8KMV3C77U5AOV8E8F0 with your actual Pixel ID -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0))) }};
+  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+  ttq.instance=function(t){var e=ttq._i[t]||[];for(var n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+  ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;
+    ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=r;ttq._t=ttq._t||{};ttq._t[e]=+new Date;
+    ttq._o=ttq._o||{};ttq._o[e]=n||{};n=d.createElement("script");n.type="text/javascript";
+    n.async=!0;n.src=r+"?sdkid="+e+"&lib="+t;e=d.getElementsByTagName("script")[0];
+    e.parentNode.insertBefore(n,e)};
+  ttq.load("DB8KMV3C77U5AOV8E8F0");
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+<!-- End TikTok Pixel Code -->
+
 </head>
 <body>
 <div class="top">🚚 Cash on Delivery Across Pakistan &nbsp; | &nbsp; ✓ Check Your Parcel Before Payment &nbsp; | &nbsp; 🌿 Original Herbal Product</div>
@@ -339,7 +359,9 @@ const selected=document.querySelector('input[name="deal"]:checked');
 const is10=selected.value.includes('1,799');
 const total=is10?'1,999':'2,699';
 
-const orderData={
+const orderTrackingId='order_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+
+ const orderData={
   deal:selected.value,
   name:document.getElementById('name').value.trim(),
   phone:document.getElementById('phone').value.trim(),
@@ -347,7 +369,8 @@ const orderData={
   landmark:document.getElementById('landmark').value.trim(),
   city:document.getElementById('city').value.trim(),
   shipping:'200',
-  total:total
+  total:total,
+  orderTrackingId:orderTrackingId
 };
 
 const btn=this.querySelector('.orderbtn');
@@ -375,7 +398,8 @@ document.getElementById('thankTotal').textContent='Rs. '+total;
 // Exactly 1 second processing screen, then Thank You page.
 setTimeout(function(){
   document.getElementById('thankyouPage').style.display='flex';
-  trackThankYouPurchase(total);
+  trackThankYouPurchase(total, orderTrackingId);
+  trackTikTokPurchase(total, orderTrackingId);
   btn.disabled=false;
   btn.textContent='PLACE ORDER — Rs. '+total;
 },1000);
@@ -387,19 +411,39 @@ const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyGV0GEEm_JIK_
 </script>
 
 <script>
-function trackThankYouPurchase(totalAmount) {
-  // Purchase fires only when the Thank You page is shown.
-  // Prevent duplicate Purchase events if the page is revisited in the same session.
-  if (sessionStorage.getItem('meta_purchase_tracked') === '1') {
-    return;
-  }
+function trackThankYouPurchase(totalAmount, orderId) {
+  // Fire Meta Purchase once for this specific submitted order.
+  const key = 'meta_purchase_tracked_' + orderId;
+  if (!orderId || sessionStorage.getItem(key) === '1') return;
 
   if (typeof fbq === 'function') {
     fbq('track', 'Purchase', {
       value: Number(totalAmount),
       currency: 'PKR'
     });
-    sessionStorage.setItem('meta_purchase_tracked', '1');
+    sessionStorage.setItem(key, '1');
+  }
+}
+
+function trackTikTokPurchase(totalAmount, orderId) {
+  // TikTok CompletePayment fires only when the Thank You screen appears,
+  // and only once for each submitted order.
+  const key = 'tiktok_purchase_tracked_' + orderId;
+  if (!orderId || sessionStorage.getItem(key) === '1') return;
+
+  if (typeof window.ttq !== 'undefined' && typeof window.ttq.track === 'function') {
+    window.ttq.track('CompletePayment', {
+      value: Number(totalAmount),
+      currency: 'PKR',
+      contents: [{
+        content_id: 'tilla-patal-jantar-massage-oil',
+        content_type: 'product',
+        content_name: 'Tilla Patal Jantar Massage Oil',
+        quantity: 1,
+        price: Number(totalAmount)
+      }]
+    });
+    sessionStorage.setItem(key, '1');
   }
 }
 </script>
