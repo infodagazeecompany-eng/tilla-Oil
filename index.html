@@ -436,13 +436,15 @@ const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyGV0GEEm_JIK_
 
 <script>
 function trackThankYouPurchase(totalAmount, orderId) {
+  // Remove display commas so ad platforms receive a valid numeric value.
+  const numericAmount = Number(String(totalAmount).replace(/,/g, ''));
   // Fire Meta Purchase once for this specific submitted order.
   const key = 'meta_purchase_tracked_' + orderId;
   if (!orderId || sessionStorage.getItem(key) === '1') return;
 
   if (typeof fbq === 'function') {
     fbq('track', 'Purchase', {
-      value: Number(totalAmount),
+      value: numericAmount,
       currency: 'PKR'
     });
     sessionStorage.setItem(key, '1');
@@ -450,6 +452,8 @@ function trackThankYouPurchase(totalAmount, orderId) {
 }
 
 function trackTikTokPurchase(totalAmount, orderId) {
+  // Remove display commas: "1,999" must be sent as numeric 1999.
+  const numericAmount = Number(String(totalAmount).replace(/,/g, ''));
   // TikTok CompletePayment fires only when the Thank You screen appears,
   // and only once for each submitted order.
   const key = 'tiktok_purchase_tracked_' + orderId;
@@ -457,14 +461,14 @@ function trackTikTokPurchase(totalAmount, orderId) {
 
   if (typeof window.ttq !== 'undefined' && typeof window.ttq.track === 'function') {
     window.ttq.track('CompletePayment', {
-      value: Number(totalAmount),
+      value: numericAmount,
       currency: 'PKR',
       contents: [{
         content_id: 'tilla-patal-jantar-massage-oil',
         content_type: 'product',
         content_name: 'Tilla Patal Jantar Massage Oil',
         quantity: 1,
-        price: Number(totalAmount)
+        price: numericAmount
       }]
     });
     sessionStorage.setItem(key, '1');
